@@ -3,6 +3,7 @@ package termutil
 import (
 	"github.com/mattn/go-runewidth"
 	"github.com/nsf/termbox-go"
+	"strings"
 	"unicode"
 	"unicode/utf8"
 )
@@ -48,4 +49,42 @@ func Printstring(s string, x, y int) {
 		PrintRune(x+i, y, ru, termbox.ColorDefault)
 		i += Runewidth(ru)
 	}
+}
+
+func pauseForAnyKey(currentRow int) {
+	Printstring("<More>", 0, currentRow)
+	termbox.Flush()
+	ev := termbox.PollEvent()
+	for ev.Type != termbox.EventKey {
+		ev = termbox.PollEvent()
+	}
+	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+	termbox.Flush()
+}
+
+func DisplayScreenMessage(messages ...string) {
+	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+	sx, sy := termbox.Size()
+	currentRow := 0
+	for _, msg := range messages {
+		for _, s := range strings.Split(msg, "\n") {
+			buf := s
+			for len(buf) > sx {
+				Printstring(buf[:sx], 0, currentRow)
+				buf = buf[sx:]
+				currentRow++
+				if currentRow > sy-2 {
+					pauseForAnyKey(currentRow)
+					currentRow = 0
+				}
+			}
+			Printstring(buf, 0, currentRow)
+			currentRow++
+			if currentRow > sy-2 {
+				pauseForAnyKey(currentRow)
+				currentRow = 0
+			}
+		}
+	}
+	termbox.Flush()
 }
