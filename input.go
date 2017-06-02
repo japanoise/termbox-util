@@ -119,7 +119,7 @@ func ChoiceIndex(title string, choices []string, def int) int {
 		termbox.HideCursor()
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 		Printstring(title, 0, 0)
-		if selection < offset {
+		for selection < offset {
 			offset -= 5
 			if offset < 0 {
 				offset = 0
@@ -142,6 +142,20 @@ func ChoiceIndex(title string, choices []string, def int) int {
 		}
 		key := ParseTermboxEvent(ev)
 		switch key {
+		case "C-v":
+			fallthrough
+		case "next":
+			selection += sy - 5
+			if selection >= len(choices) {
+				selection = len(choices) - 1
+			}
+		case "M-v":
+			fallthrough
+		case "prior":
+			selection -= sy - 5
+			if selection < 0 {
+				selection = 0
+			}
 		case "C-c":
 			fallthrough
 		case "C-g":
