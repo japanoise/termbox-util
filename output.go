@@ -118,12 +118,12 @@ func DisplayScreenMessage(messages ...string) {
 					cy--
 				}
 			case "next", "C-v":
-				cy += sy
+				cy += sy - 2
 				if cy > numrows-sy {
 					cy = numrows - sy
 				}
 			case "prior", "M-v":
-				cy -= sy
+				cy -= sy - 2
 				if cy < 0 {
 					cy = 0
 				}
