@@ -29,10 +29,14 @@ characters.
 Prints the string given on the screen. Uses the above functions to choose how it
 appears.
 
+    PrintstringColored(c termbox.Attribute, s string, x, y int)
+
+Same as Printstring, but passes a color to PrintRune.
+
     DisplayScreenMessage(messages ...string)
 
-Prints all strings given to the screen, wrapping them if necessary, pausing
-for a keypress if it fills the screen.
+Prints all strings given to the screen, and allows the user to scroll through,
+rather like less(1).
 ~~~
 
 ## Input Functions
