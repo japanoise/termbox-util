@@ -86,6 +86,7 @@ func lessDrawRows(sx, sy, cy int, rows []lessRow, numrows int) {
 }
 
 func DisplayScreenMessage(messages ...string) {
+	termbox.HideCursor()
 	rows := make([]lessRow, 0)
 	for _, msg := range messages {
 		for _, s := range strings.Split(msg, "\n") {
@@ -131,6 +132,17 @@ func DisplayScreenMessage(messages ...string) {
 				cy = 0
 			case "G", "M->":
 				cy = numrows + 1 - sy
+			case "/", "C-s":
+				search := Prompt("Search", func(ssx, ssy int) {
+					lessDrawRows(ssx, ssy, cy, rows, numrows)
+				})
+				termbox.HideCursor()
+				for offset, row := range rows[cy:] {
+					if strings.Contains(row.data, search) {
+						cy += offset
+						break
+					}
+				}
 			}
 		}
 	}
