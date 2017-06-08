@@ -110,7 +110,7 @@ func DisplayScreenMessage(messages ...string) {
 			case "q", "C-c", "C-g":
 				done = true
 			case "DOWN", "j", "C-n":
-				if cy < numrows-sy {
+				if cy < numrows+1-sy {
 					cy++
 				}
 			case "UP", "k", "C-p":
@@ -119,8 +119,8 @@ func DisplayScreenMessage(messages ...string) {
 				}
 			case "next", "C-v":
 				cy += sy - 2
-				if cy > numrows-sy {
-					cy = numrows - sy
+				if cy > numrows+1-sy {
+					cy = numrows + 1 - sy
 				}
 			case "prior", "M-v":
 				cy -= sy - 2
@@ -130,7 +130,7 @@ func DisplayScreenMessage(messages ...string) {
 			case "g", "M-<":
 				cy = 0
 			case "G", "M->":
-				cy = numrows - sy
+				cy = numrows + 1 - sy
 			}
 		}
 	}
