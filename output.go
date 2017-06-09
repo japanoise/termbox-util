@@ -63,8 +63,6 @@ func PrintstringColored(color termbox.Attribute, s string, x, y int) {
 	}
 }
 
-//Prints all strings given to the screen, and allows the user to scroll through,
-//rather like less(1).
 func pauseForAnyKey(currentRow int) {
 	Printstring("<More>", 0, currentRow)
 	termbox.Flush()
@@ -95,6 +93,8 @@ func lessDrawRows(sx, sy, cy int, rows []lessRow, numrows int) {
 	termbox.Flush()
 }
 
+//Prints all strings given to the screen, and allows the user to scroll through,
+//rather like less(1).
 func DisplayScreenMessage(messages ...string) {
 	termbox.HideCursor()
 	rows := make([]lessRow, 0)
