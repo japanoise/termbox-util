@@ -1,3 +1,5 @@
+//These are some nice functions torn out of Gomacs which I think are better
+//suited to be out of the project for reuse. It's imported as termutil.
 package termutil
 
 import (
@@ -7,10 +9,13 @@ import (
 	"unicode/utf8"
 )
 
+//Get a string from the user. They can use typical emacs-ish editing commands,
+//or press C-c or C-g to cancel.
 func Prompt(prompt string, refresh func(int, int)) string {
 	return PromptWithCallback(prompt, refresh, nil)
 }
 
+//As prompt, but calls a function after every keystroke.
 func PromptWithCallback(prompt string, refresh func(int, int), callback func(string, string)) string {
 	buffer := ""
 	bufpos := 0
@@ -107,6 +112,9 @@ func PromptWithCallback(prompt string, refresh func(int, int), callback func(str
 	}
 }
 
+//Allows the user to select one of many choices displayed on-screen.
+//Takes a title, choices, and default selection. Returns an index into the choices
+//array; or def (default)
 func ChoiceIndex(title string, choices []string, def int) int {
 	selection := def
 	nc := len(choices) - 1
@@ -174,6 +182,8 @@ func ChoiceIndex(title string, choices []string, def int) int {
 	}
 }
 
+//Parses a termbox.EventKey event and returns it as an emacs-ish keybinding string
+//(e.g. "C-c", "LEFT", "TAB", etc.)
 func ParseTermboxEvent(ev termbox.Event) string {
 	if ev.Ch == 0 {
 		prefix := ""
@@ -247,11 +257,14 @@ func ParseTermboxEvent(ev termbox.Event) string {
 	return string(ev.Ch)
 }
 
+//Displays the prompt p and asks the user to say y or n. Returns true if y; false
+//if no.
 func YesNo(p string, refresh func(int, int)) bool {
 	ret, _ := yesNoChoice(p, false, refresh)
 	return ret
 }
 
+//Same as YesNo, but will return a non-nil error if the user presses C-g.
 func YesNoCancel(p string, refresh func(int, int)) (bool, error) {
 	return yesNoChoice(p, true, refresh)
 }

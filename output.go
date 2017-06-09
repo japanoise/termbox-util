@@ -8,12 +8,14 @@ import (
 	"unicode/utf8"
 )
 
+//Pass the screenwidth and a line number; this function will clear the given line.
 func ClearLine(sx, y int) {
 	for i := 0; i < sx; i++ {
 		termbox.SetCell(i, y, ' ', termbox.ColorDefault, termbox.ColorDefault)
 	}
 }
 
+//Returns how many cells wide the given rune is.
 func Runewidth(ru rune) int {
 	rw := runewidth.RuneWidth(ru)
 	if rw <= 0 {
@@ -23,6 +25,7 @@ func Runewidth(ru rune) int {
 	}
 }
 
+//Returns how many cells wide the given string is
 func RunewidthStr(s string) int {
 	ret := 0
 	for _, ru := range s {
@@ -31,6 +34,8 @@ func RunewidthStr(s string) int {
 	return ret
 }
 
+//Prints the rune given on the screen. Uses reverse colors for unprintable
+//characters.
 func PrintRune(x, y int, ru rune, col termbox.Attribute) {
 	if unicode.IsControl(ru) || !utf8.ValidRune(ru) {
 		sym := '?'
@@ -43,10 +48,13 @@ func PrintRune(x, y int, ru rune, col termbox.Attribute) {
 	}
 }
 
+//Prints the string given on the screen. Uses the above functions to choose how it
+//appears.
 func Printstring(s string, x, y int) {
 	PrintstringColored(termbox.ColorDefault, s, x, y)
 }
 
+//Same as Printstring, but passes a color to PrintRune.
 func PrintstringColored(color termbox.Attribute, s string, x, y int) {
 	i := 0
 	for _, ru := range s {
@@ -55,6 +63,8 @@ func PrintstringColored(color termbox.Attribute, s string, x, y int) {
 	}
 }
 
+//Prints all strings given to the screen, and allows the user to scroll through,
+//rather like less(1).
 func pauseForAnyKey(currentRow int) {
 	Printstring("<More>", 0, currentRow)
 	termbox.Flush()

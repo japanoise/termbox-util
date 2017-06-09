@@ -1,5 +1,7 @@
 # termbox-util
 
+[![GoDoc](https://godoc.org/github.com/japanoise/termbox-util?status.svg)](https://godoc.org/github.com/japanoise/termbox-util)
+
 These are some nice functions torn out of [Gomacs](https://github.com/japanoise/gomacs)
 which I think are better suited to be out of the project for reuse. It's imported
 as `termutil`.
