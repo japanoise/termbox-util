@@ -8,6 +8,11 @@ import (
 	"unicode/utf8"
 )
 
+//Indicate whether the given rune is a word character
+func WordCharacter(c rune) bool {
+	return (c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c == '_') || c > 127
+}
+
 //Pass the screenwidth and a line number; this function will clear the given line.
 func ClearLine(sx, y int) {
 	for i := 0; i < sx; i++ {
