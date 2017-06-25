@@ -84,11 +84,14 @@ type lessRow struct {
 	len  int
 }
 
-func lessDrawRows(sx, sy, cy int, rows []lessRow, numrows int) {
+func lessDrawRows(sx, sy, cx, cy int, rows []lessRow, numrows int) {
 	for i := 0; i < sy-1; i++ {
 		ri := cy + i
 		if ri >= 0 && ri < numrows {
-			Printstring(rows[ri].data, 0, i)
+			if cx < len(rows[ri].data) {
+				ts, _ := trimString(rows[ri].data, cx)
+				Printstring(ts, 0, i)
+			}
 		}
 	}
 	for i := 0; i < sx; i++ {
@@ -111,6 +114,7 @@ func DisplayScreenMessage(messages ...string) {
 	}
 	numrows := len(rows)
 	cy := 0
+	cx := 0
 	done := false
 	for !done {
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
@@ -118,7 +122,7 @@ func DisplayScreenMessage(messages ...string) {
 		if sy > numrows {
 			cy = 0
 		}
-		lessDrawRows(sx, sy, cy, rows, numrows)
+		lessDrawRows(sx, sy, cx, cy, rows, numrows)
 
 		ev := termbox.PollEvent()
 		if ev.Type == termbox.EventKey {
@@ -133,6 +137,14 @@ func DisplayScreenMessage(messages ...string) {
 				if cy > 0 {
 					cy--
 				}
+			case "Home", "C-a":
+				cx = 0
+			case "LEFT", "h", "C-b":
+				if cx > 0 {
+					cx--
+				}
+			case "RIGHT", "l", "C-f":
+				cx++
 			case "next", "C-v":
 				cy += sy - 2
 				if cy > numrows+1-sy {
@@ -149,7 +161,7 @@ func DisplayScreenMessage(messages ...string) {
 				cy = numrows + 1 - sy
 			case "/", "C-s":
 				search := Prompt("Search", func(ssx, ssy int) {
-					lessDrawRows(ssx, ssy, cy, rows, numrows)
+					lessDrawRows(ssx, ssy, cx, cy, rows, numrows)
 				})
 				termbox.HideCursor()
 				for offset, row := range rows[cy:] {
@@ -160,5 +172,18 @@ func DisplayScreenMessage(messages ...string) {
 				}
 			}
 		}
+	}
+}
+
+func trimString(s string, coloff int) (string, int) {
+	if coloff == 0 {
+		return s, 0
+	}
+	sr := []rune(s)
+	if coloff < len(sr) {
+		ret := string(sr[coloff:])
+		return ret, strings.Index(s, ret)
+	} else {
+		return "", 0
 	}
 }
