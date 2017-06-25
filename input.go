@@ -269,16 +269,18 @@ func YesNoCancel(p string, refresh func(int, int)) (bool, error) {
 	return yesNoChoice(p, true, refresh)
 }
 
-func yesNoChoice(p string, allowcancel bool, refresh func(int, int)) (bool, error) {
+// Asks the user to press one of a set of keys. Returns the one which they pressed.
+func PressKey(p string, refresh func(int, int), keys ...string) string {
 	var plen int
-	var pm string
-	if allowcancel {
-		pm = p + " (y/n/C-g)"
-		plen = utf8.RuneCountInString(pm) + 1
-	} else {
-		pm = p + " (y/n)"
-		plen = utf8.RuneCountInString(pm) + 1
+	pm := p + " ("
+	for i, key := range keys {
+		if i != 0 {
+			pm += "/"
+		}
+		pm += key
 	}
+	pm += ")"
+	plen = utf8.RuneCountInString(pm) + 1
 	x, y := termbox.Size()
 	if refresh != nil {
 		refresh(x, y)
@@ -299,13 +301,28 @@ func yesNoChoice(p string, allowcancel bool, refresh func(int, int)) (bool, erro
 			termbox.SetCursor(plen, y-1)
 			termbox.Flush()
 		} else if ev.Type == termbox.EventKey {
-			if ev.Key == termbox.KeyCtrlG && allowcancel {
-				return false, errors.New("User cancelled")
-			} else if ev.Ch == 'y' {
-				return true, nil
-			} else if ev.Ch == 'n' {
-				return false, nil
+			pressedkey := ParseTermboxEvent(ev)
+			for _, key := range keys {
+				if key == pressedkey {
+					return key
+				}
 			}
 		}
 	}
+}
+
+func yesNoChoice(p string, allowcancel bool, refresh func(int, int)) (bool, error) {
+	if allowcancel {
+		key := PressKey(p, refresh, "y", "n", "C-g")
+		switch key {
+		case "y":
+			return true, nil
+		case "n":
+			return false, nil
+		case "C-g", "C-c":
+			return false, errors.New("User cancelled")
+		}
+	}
+	key := PressKey(p, refresh, "y", "n")
+	return key == "y", nil
 }
