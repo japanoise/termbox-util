@@ -122,6 +122,7 @@ func ChoiceIndex(title string, choices []string, def int) int {
 		selection = 0
 	}
 	offset := 0
+	cx := 0
 	for {
 		_, sy := termbox.Size()
 		termbox.HideCursor()
@@ -140,7 +141,11 @@ func ChoiceIndex(title string, choices []string, def int) int {
 			}
 		}
 		for i, s := range choices[offset:] {
-			Printstring(s, 3, i+1)
+			ts, _ := trimString(s, cx)
+			Printstring(ts, 3, i+1)
+			if cx > 0 {
+				Printstring("←", 2, i+1)
+			}
 		}
 		Printstring(">", 1, (selection+1)-offset)
 		termbox.Flush()
@@ -176,6 +181,12 @@ func ChoiceIndex(title string, choices []string, def int) int {
 			if selection < len(choices)-1 {
 				selection++
 			}
+		case "LEFT":
+			if cx > 0 {
+				cx--
+			}
+		case "RIGHT":
+			cx++
 		case "RET":
 			return selection
 		}
