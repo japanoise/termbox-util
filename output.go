@@ -22,12 +22,20 @@ func ClearLine(sx, y int) {
 
 //Returns how many cells wide the given rune is.
 func Runewidth(ru rune) int {
+	if IsControl(ru) {
+		return 2
+	}
 	rw := runewidth.RuneWidth(ru)
 	if rw <= 0 {
 		return 1
 	} else {
 		return rw
 	}
+}
+
+//Returns true if the rune is a control character or invalid rune
+func IsControl(ru rune) bool {
+	return unicode.IsControl(ru) || !utf8.ValidRune(ru)
 }
 
 //Returns how many cells wide the given string is
@@ -39,15 +47,16 @@ func RunewidthStr(s string) int {
 	return ret
 }
 
-//Prints the rune given on the screen. Uses reverse colors for unprintable
+//Prints the rune given on the screen. Uses reverse colors for control
 //characters.
 func PrintRune(x, y int, ru rune, col termbox.Attribute) {
-	if unicode.IsControl(ru) || !utf8.ValidRune(ru) {
-		sym := '?'
+	if IsControl(ru) {
 		if ru <= rune(26) {
-			sym = '@' + ru
+			termbox.SetCell(x, y, '^', termbox.AttrReverse, termbox.ColorDefault)
+			termbox.SetCell(x+1, y, '@'+ru, termbox.AttrReverse, termbox.ColorDefault)
+		} else {
+			termbox.SetCell(x, y, '�', col, termbox.ColorDefault)
 		}
-		termbox.SetCell(x, y, sym, termbox.AttrReverse, termbox.ColorDefault)
 	} else {
 		termbox.SetCell(x, y, ru, col, termbox.ColorDefault)
 	}
