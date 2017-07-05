@@ -17,10 +17,14 @@ func Prompt(prompt string, refresh func(int, int)) string {
 
 //As prompt, but calls a function after every keystroke.
 func PromptWithCallback(prompt string, refresh func(int, int), callback func(string, string)) string {
-	return DynamicPromptWithCallback(prompt, refresh, func(a, b string) string {
-		callback(a, b)
-		return a
-	})
+	if callback == nil {
+		return DynamicPromptWithCallback(prompt, refresh, nil)
+	} else {
+		return DynamicPromptWithCallback(prompt, refresh, func(a, b string) string {
+			callback(a, b)
+			return a
+		})
+	}
 }
 
 //As prompt, but calls a function after every keystroke that can modify the query.
