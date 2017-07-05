@@ -56,6 +56,10 @@ or press C-c or C-g to cancel.
 
 As prompt, but calls a function after every keystroke.
 
+    DynamicPromptWithCallback(prompt string, refresh func(int, int), callback func(string, string) string) string
+
+As prompt, but calls a function after every keystroke that can modify the query.
+
     ChoiceIndex(title string, choices []string, def int) int
 
 Allows the user to select one of many choices displayed on-screen.

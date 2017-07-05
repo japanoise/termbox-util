@@ -17,6 +17,14 @@ func Prompt(prompt string, refresh func(int, int)) string {
 
 //As prompt, but calls a function after every keystroke.
 func PromptWithCallback(prompt string, refresh func(int, int), callback func(string, string)) string {
+	return DynamicPromptWithCallback(prompt, refresh, func(a, b string) string {
+		callback(a, b)
+		return a
+	})
+}
+
+//As prompt, but calls a function after every keystroke that can modify the query.
+func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback func(string, string) string) string {
 	buffer := ""
 	bufpos := 0
 	cursor := 0
@@ -62,12 +70,18 @@ func PromptWithCallback(prompt string, refresh func(int, int), callback func(str
 			fallthrough
 		case "C-g":
 			if callback != nil {
-				callback(buffer, key)
+				result := callback(buffer, key)
+				if result != buffer {
+					buffer, buflen, bufpos, cursor = recalcBuffer(result)
+				}
 			}
 			return ""
 		case "RET":
 			if callback != nil {
-				callback(buffer, key)
+				result := callback(buffer, key)
+				if result != buffer {
+					buffer, buflen, bufpos, cursor = recalcBuffer(result)
+				}
 			}
 			return buffer
 		case "C-d":
@@ -79,7 +93,10 @@ func PromptWithCallback(prompt string, refresh func(int, int), callback func(str
 				cursor += Runewidth(r)
 			} else {
 				if callback != nil {
-					callback(buffer, key)
+					result := callback(buffer, key)
+					if result != buffer {
+						buffer, buflen, bufpos, cursor = recalcBuffer(result)
+					}
 				}
 				continue
 			}
@@ -107,9 +124,17 @@ func PromptWithCallback(prompt string, refresh func(int, int), callback func(str
 			}
 		}
 		if callback != nil {
-			callback(buffer, key)
+			result := callback(buffer, key)
+			if result != buffer {
+				buffer, buflen, bufpos, cursor = recalcBuffer(result)
+			}
 		}
 	}
+}
+
+func recalcBuffer(result string) (string, int, int, int) {
+	rlen := len(result)
+	return result, rlen, rlen, RunewidthStr(result)
 }
 
 //Allows the user to select one of many choices displayed on-screen.
