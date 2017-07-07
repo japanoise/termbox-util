@@ -220,20 +220,26 @@ func ChoiceIndex(title string, choices []string, def int) int {
 			fallthrough
 		case "C-g":
 			return def
-		case "UP":
+		case "UP", "C-p":
 			if selection > 0 {
 				selection--
 			}
-		case "DOWN":
+		case "DOWN", "C-n":
 			if selection < len(choices)-1 {
 				selection++
 			}
-		case "LEFT":
+		case "LEFT", "C-b":
 			if cx > 0 {
 				cx--
 			}
-		case "RIGHT":
+		case "RIGHT", "C-f":
 			cx++
+		case "C-a", "Home":
+			cx = 0
+		case "M-<":
+			selection = 0
+		case "M->":
+			selection = len(choices) - 1
 		case "RET":
 			return selection
 		}
