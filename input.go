@@ -9,6 +9,36 @@ import (
 	"unicode/utf8"
 )
 
+//Get a raw character from termbox
+func GetRawChar(refresh func(int, int)) string {
+	done := false
+	chara := ""
+	for !done {
+		data := make([]byte, 4)
+		termbox.PollRawEvent(data)
+		parsed := termbox.ParseEvent(data)
+		if parsed.Type == termbox.EventKey {
+			if data[3] == 0 {
+				if data[2] == 0 {
+					if data[1] == 0 {
+						chara = string(data[:1])
+					} else {
+						chara = string(data[:2])
+					}
+				} else {
+					chara = string(data[:3])
+				}
+			} else {
+				chara = string(data)
+			}
+			done = true
+		} else if parsed.Type == termbox.EventResize && refresh != nil {
+			refresh(termbox.Size())
+		}
+	}
+	return chara
+}
+
 //Get a string from the user. They can use typical emacs-ish editing commands,
 //or press C-c or C-g to cancel.
 func Prompt(prompt string, refresh func(int, int)) string {
