@@ -50,6 +50,8 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 	buffer := ""
 	bufpos := 0
 	cursor := 0
+	offset := 0
+	iw := RunewidthStr(prompt + ": ")
 	for {
 		buflen := len(buffer)
 		x, y := termbox.Size()
@@ -57,8 +59,17 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 			refresh(x, y)
 		}
 		ClearLine(x, y-1)
-		Printstring(prompt+": "+buffer, 0, y-1)
-		termbox.SetCursor(utf8.RuneCountInString(prompt)+2+cursor, y-1)
+		for iw+cursor >= x {
+			offset++
+			cursor--
+		}
+		for iw+cursor < iw {
+			offset--
+			cursor++
+		}
+		t, _ := trimString(buffer, offset)
+		Printstring(prompt+": "+t, 0, y-1)
+		termbox.SetCursor(iw+cursor, y-1)
 		termbox.Flush()
 		ev := termbox.PollEvent()
 		if ev.Type != termbox.EventKey {
@@ -83,11 +94,18 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 		case "Home":
 			bufpos = 0
 			cursor = 0
+			offset = 0
 		case "C-e":
 			fallthrough
 		case "End":
 			bufpos = buflen
-			cursor = RunewidthStr(buffer)
+			if RunewidthStr(buffer) > x {
+				cursor = x - 1
+				offset = buflen - x
+			} else {
+				offset = 0
+				cursor = RunewidthStr(buffer)
+			}
 		case "C-c":
 			fallthrough
 		case "C-g":
