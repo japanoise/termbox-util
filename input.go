@@ -77,13 +77,13 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 		}
 		key := ParseTermboxEvent(ev)
 		switch key {
-		case "LEFT":
+		case "LEFT", "C-b":
 			if bufpos > 0 {
 				r, rs := utf8.DecodeLastRuneInString(buffer[:bufpos])
 				bufpos -= rs
 				cursor -= Runewidth(r)
 			}
-		case "RIGHT":
+		case "RIGHT", "C-f":
 			if bufpos < buflen {
 				r, rs := utf8.DecodeRuneInString(buffer[bufpos:])
 				bufpos += rs
