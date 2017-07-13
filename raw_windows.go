@@ -9,11 +9,13 @@ import (
 // library compiling on Windows.
 func GetRawChar(refresh func(int, int)) string {
 	ev := func() termbox.Event {
-		ret := termbox.PollEvent()
-		if ret.Type == termbox.EventKey {
-			return ret
-		} else if ret.Type == termbox.EventResize && refresh != nil {
-			refresh(ret.Width, ret.Height)
+		for {
+			ret := termbox.PollEvent()
+			if ret.Type == termbox.EventKey {
+				return ret
+			} else if ret.Type == termbox.EventResize && refresh != nil {
+				refresh(ret.Width, ret.Height)
+			}
 		}
 	}()
 	prefix := ""
