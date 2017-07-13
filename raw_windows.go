@@ -15,7 +15,7 @@ func GetRawChar(refresh func(int, int)) string {
 		} else if ret.Type == termbox.EventResize && refresh != nil {
 			refresh(ret.Width, ret.Height)
 		}
-	}
+	}()
 	prefix := ""
 	if ev.Mod == termbox.ModAlt {
 		prefix = "\x1b"
