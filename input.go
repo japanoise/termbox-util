@@ -4,8 +4,9 @@ package termutil
 
 import (
 	"errors"
-	"github.com/nsf/termbox-go"
 	"unicode/utf8"
+
+	"github.com/nsf/termbox-go"
 )
 
 //Get a string from the user. They can use typical emacs-ish editing commands,
@@ -139,6 +140,30 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 					cursor -= Runewidth(r)
 				}
 			}
+		case "M-DEL":
+			if buflen > 0 && bufpos > 0 {
+				delto := backwordWordIndex(buffer, bufpos)
+				buffer = buffer[:delto] + buffer[bufpos:]
+				buflen = len(buffer)
+				bufpos = delto
+				cursor = RunewidthStr(buffer[:bufpos])
+			}
+		case "M-d":
+			if buflen > 0 && bufpos < buflen {
+				delto := forwardWordIndex(buffer, bufpos)
+				buffer = buffer[:bufpos] + buffer[delto:]
+				buflen = len(buffer)
+			}
+		case "M-b":
+			if buflen > 0 && bufpos > 0 {
+				bufpos = backwordWordIndex(buffer, bufpos)
+				cursor = RunewidthStr(buffer[:bufpos])
+			}
+		case "M-f":
+			if buflen > 0 && bufpos < buflen {
+				bufpos = forwardWordIndex(buffer, bufpos)
+				cursor = RunewidthStr(buffer[:bufpos])
+			}
 		default:
 			if utf8.RuneCountInString(key) == 1 {
 				r, _ := utf8.DecodeLastRuneInString(buffer)
@@ -160,6 +185,28 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 func recalcBuffer(result string) (string, int, int, int) {
 	rlen := len(result)
 	return result, rlen, 0, 0
+}
+
+func backwordWordIndex(buffer string, bufpos int) int {
+	r, rs := utf8.DecodeLastRuneInString(buffer[:bufpos])
+	ret := bufpos - rs
+	r, rs = utf8.DecodeLastRuneInString(buffer[:ret])
+	for ret > 0 && WordCharacter(r) {
+		ret -= rs
+		r, rs = utf8.DecodeLastRuneInString(buffer[:ret])
+	}
+	return ret
+}
+
+func forwardWordIndex(buffer string, bufpos int) int {
+	r, rs := utf8.DecodeRuneInString(buffer[bufpos:])
+	ret := bufpos + rs
+	r, rs = utf8.DecodeRuneInString(buffer[ret:])
+	for ret < len(buffer) && WordCharacter(r) {
+		ret += rs
+		r, rs = utf8.DecodeRuneInString(buffer[ret:])
+	}
+	return ret
 }
 
 //Allows the user to select one of many choices displayed on-screen.
