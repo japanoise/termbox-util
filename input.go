@@ -82,7 +82,7 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 			bufpos = buflen
 			if RunewidthStr(buffer) > x {
 				cursor = x - 1
-				offset = buflen - x
+				offset = buflen + 1 - x
 			} else {
 				offset = 0
 				cursor = RunewidthStr(buffer)
@@ -93,6 +93,7 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 			if callback != nil {
 				result := callback(buffer, key)
 				if result != buffer {
+					offset = 0
 					buffer, buflen, bufpos, cursor = recalcBuffer(result)
 				}
 			}
@@ -101,6 +102,7 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 			if callback != nil {
 				result := callback(buffer, key)
 				if result != buffer {
+					offset = 0
 					buffer, buflen, bufpos, cursor = recalcBuffer(result)
 				}
 			}
@@ -116,6 +118,7 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 				if callback != nil {
 					result := callback(buffer, key)
 					if result != buffer {
+						offset = 0
 						buffer, buflen, bufpos, cursor = recalcBuffer(result)
 					}
 				}
@@ -147,6 +150,7 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 		if callback != nil {
 			result := callback(buffer, key)
 			if result != buffer {
+				offset = 0
 				buffer, buflen, bufpos, cursor = recalcBuffer(result)
 			}
 		}
@@ -155,7 +159,7 @@ func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback f
 
 func recalcBuffer(result string) (string, int, int, int) {
 	rlen := len(result)
-	return result, rlen, rlen, RunewidthStr(result)
+	return result, rlen, 0, 0
 }
 
 //Allows the user to select one of many choices displayed on-screen.
