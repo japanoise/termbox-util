@@ -213,6 +213,12 @@ func forwardWordIndex(buffer string, bufpos int) int {
 //Takes a title, choices, and default selection. Returns an index into the choices
 //array; or def (default)
 func ChoiceIndex(title string, choices []string, def int) int {
+	return ChoiceIndexCallback(title, choices, def, nil)
+}
+
+//As ChoiceIndex, but calls a function after drawing the interface,
+//passing it the current selected choice, screen width, and screen height.
+func ChoiceIndexCallback(title string, choices []string, def int, f func(int, int, int)) int {
 	selection := def
 	nc := len(choices) - 1
 	if selection < 0 || selection > nc {
@@ -221,7 +227,7 @@ func ChoiceIndex(title string, choices []string, def int) int {
 	offset := 0
 	cx := 0
 	for {
-		_, sy := termbox.Size()
+		sx, sy := termbox.Size()
 		termbox.HideCursor()
 		termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 		Printstring(title, 0, 0)
@@ -245,6 +251,9 @@ func ChoiceIndex(title string, choices []string, def int) int {
 			}
 		}
 		Printstring(">", 1, (selection+1)-offset)
+		if f != nil {
+			f(selection, sx, sy)
+		}
 		termbox.Flush()
 		ev := termbox.PollEvent()
 		if ev.Type != termbox.EventKey {
