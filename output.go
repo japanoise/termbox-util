@@ -24,6 +24,8 @@ func ClearLine(sx, y int) {
 func Runewidth(ru rune) int {
 	if IsControl(ru) {
 		return 2
+	} else if ' ' <= ru && ru <= '~' {
+		return 1
 	}
 	rw := runewidth.RuneWidth(ru)
 	if rw <= 0 {
