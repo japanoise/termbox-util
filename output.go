@@ -1,11 +1,12 @@
 package termutil
 
 import (
-	"github.com/mattn/go-runewidth"
-	"github.com/nsf/termbox-go"
 	"strings"
 	"unicode"
 	"unicode/utf8"
+
+	"github.com/mattn/go-runewidth"
+	"github.com/nsf/termbox-go"
 )
 
 //Indicate whether the given rune is a word character
@@ -52,29 +53,39 @@ func RunewidthStr(s string) int {
 //Prints the rune given on the screen. Uses reverse colors for control
 //characters.
 func PrintRune(x, y int, ru rune, col termbox.Attribute) {
+	PrintRuneBgFg(x, y, ru, col, termbox.ColorDefault)
+}
+
+//Print the rune with reverse colors for control characters
+func PrintRuneBgFg(x, y int, ru rune, fg, bg termbox.Attribute) {
 	if IsControl(ru) {
 		if ru <= rune(26) {
-			termbox.SetCell(x, y, '^', termbox.AttrReverse, termbox.ColorDefault)
-			termbox.SetCell(x+1, y, '@'+ru, termbox.AttrReverse, termbox.ColorDefault)
+			termbox.SetCell(x, y, '^', fg|termbox.AttrReverse, bg)
+			termbox.SetCell(x+1, y, '@'+ru, fg|termbox.AttrReverse, bg)
 		} else {
-			termbox.SetCell(x, y, '�', col, termbox.ColorDefault)
+			termbox.SetCell(x, y, '�', fg, bg)
 		}
 	} else {
-		termbox.SetCell(x, y, ru, col, termbox.ColorDefault)
+		termbox.SetCell(x, y, ru, fg, bg)
 	}
 }
 
 //Prints the string given on the screen. Uses the above functions to choose how it
 //appears.
 func Printstring(s string, x, y int) {
-	PrintstringColored(termbox.ColorDefault, s, x, y)
+	PrintStringFgBg(x, y, s, termbox.ColorDefault, termbox.ColorDefault)
 }
 
 //Same as Printstring, but passes a color to PrintRune.
 func PrintstringColored(color termbox.Attribute, s string, x, y int) {
+	PrintStringFgBg(x, y, s, color, termbox.ColorDefault)
+}
+
+//Print string with an FG and a BG; API mimicking termbox itself
+func PrintStringFgBg(x, y int, s string, fg, bg termbox.Attribute) {
 	i := 0
 	for _, ru := range s {
-		PrintRune(x+i, y, ru, color)
+		PrintRuneBgFg(x+i, y, ru, fg, bg)
 		i += Runewidth(ru)
 	}
 }
