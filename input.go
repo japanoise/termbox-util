@@ -126,7 +126,7 @@ func EditDynamicWithCallback(defval, prompt string, refresh func(int, int), call
 					buffer, buflen, bufpos, cursor = recalcBuffer(result)
 				}
 			}
-			return ""
+			return defval
 		case "RET":
 			if callback != nil {
 				result := callback(buffer, key)
