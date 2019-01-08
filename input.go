@@ -168,6 +168,12 @@ func EditDynamicWithCallback(defval, prompt string, refresh func(int, int), call
 					cursor -= Runewidth(r)
 				}
 			}
+		case "C-u":
+			buffer = ""
+			buflen = 0
+			bufpos = 0
+			cursor = 0
+			offset = 0
 		case "M-DEL":
 			if buflen > 0 && bufpos > 0 {
 				delto := backwordWordIndex(buffer, bufpos)
