@@ -29,10 +29,38 @@ func PromptWithCallback(prompt string, refresh func(int, int), callback func(str
 
 //As prompt, but calls a function after every keystroke that can modify the query.
 func DynamicPromptWithCallback(prompt string, refresh func(int, int), callback func(string, string) string) string {
-	buffer := ""
-	bufpos := 0
-	cursor := 0
-	offset := 0
+	return EditDynamicWithCallback("", prompt, refresh, callback)
+}
+
+// Edit takes a default value and a refresh function. It allows the
+// user to edit the default value. It returns what the user entered.
+func Edit(defval, prompt string, refresh func(int, int)) string {
+	return EditDynamicWithCallback(defval, prompt, refresh, nil)
+}
+
+// EditDynamicWithCallback takes a default value, prompt, refresh
+// function, and callback. It allows the user to edit the default
+// value. It returns what the user entered.
+func EditDynamicWithCallback(defval, prompt string, refresh func(int, int), callback func(string, string) string) string {
+	var buffer string
+	var bufpos, cursor, offset int
+	if defval == "" {
+		buffer = ""
+		bufpos = 0
+		cursor = 0
+		offset = 0
+	} else {
+		x, _ := termbox.Size()
+		buffer = defval
+		bufpos = len(buffer)
+		if RunewidthStr(buffer) > x {
+			cursor = x - 1
+			offset = len(buffer) + 1 - x
+		} else {
+			offset = 0
+			cursor = RunewidthStr(buffer)
+		}
+	}
 	iw := RunewidthStr(prompt + ": ")
 	for {
 		buflen := len(buffer)
